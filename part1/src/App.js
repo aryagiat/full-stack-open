@@ -1,57 +1,74 @@
-import React from "react";
+import React, { useState } from 'react'
 
-const Header = (props) => {
-  console.log(props);
-  return <h1>{props.course}</h1>;
-};
-
-const Part = (props) => {
+const Heading = ({ text }) => {
   return (
-    <p>
-      {props.part} {props.exercise}
-    </p>
-  );
-};
+    <h1>{text}</h1>
+  )
+}
 
-const Content = (props) => {
+const Button = ({ handleClick, text }) => {
+  return (
+    <button onClick={handleClick}>{text}</button>
+  )
+}
+
+const Statistic = ( { text, value } ) => {
+  return (
+    <tr>
+      <td>{text}</td>
+      <td>{value}</td>
+    </tr>
+  )
+}
+
+const Statistics = (props) => {
+  if (props.all === 0) {
+    return (
+      <p>No feedback given</p>
+    )
+  }
   return (
     <div>
-      {props.parts.map(part => <Part part={part.name} exercise={part.exercises}/>)}
+      <table>
+      <tbody>
+        <Statistic text="good" value={props.good} />
+        <Statistic text="neutral" value={props.neutral} />
+        <Statistic text="bad" value={props.bad} />
+        <Statistic text="all" value={props.all} />
+        <Statistic text="average" value={props.average} />
+        <Statistic text="positive" value={props.positive} />
+        </tbody>
+      </table>
     </div>
-  );
-};
-
-const Total = (props) => {
-  const accum = (sum, curr) => { return {'name': 'hi', 'exercises' : sum.exercises + curr.exercises} }
-  return <p>Number of exercises {props.parts.reduce(accum).exercises}</p>;
-};
+  )
+}
 
 const App = () => {
-  const course = {
-    name: 'Half Stack application development',
-    parts: [
-      {
-        name: 'Fundamentals of React',
-        exercises: 10
-      },
-      {
-        name: 'Using props to pass data',
-        exercises: 7
-      },
-      {
-        name: 'State of a component',
-        exercises: 14
-      }
-    ]
-  }
+  // save clicks of each button to its own state
+  const [good, setGood] = useState(0)
+  const [neutral, setNeutral] = useState(0)
+  const [bad, setBad] = useState(0)
+  const [total, setTotal] = useState(0)
+
+  const addGood = () => {setGood(good+1); setTotal(total + 1)};
+  const addNeutral = () => {setNeutral(neutral + 1); setTotal(total + 1)};
+  const addBad = () => {setBad(bad+1); setTotal(total + 1)};
+
+  const getAverage = () => ((good * 1) + (bad * -1)) / total
+  const getPositive = () => (good / total) * 100 + "%"
 
   return (
     <div>
-      <Header course={course.name} />
-      <Content parts={course.parts} />
-      <Total parts={course.parts} />
-    </div>
-  );
-};
+      <Heading text="give feedback" />
+      <Button handleClick={addGood} text="good" />
+      <Button handleClick={addNeutral} text="neutral" />
+      <Button handleClick={addBad} text="bad" />
 
-export default App;
+
+      <Heading text="statistics" />
+      <Statistics good={good} neutral={neutral} bad={bad} all={total} average={getAverage()} positive={getPositive()}/>
+    </div>
+  )
+}
+
+export default App
